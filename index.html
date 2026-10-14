@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no, email=no, address=no">
+<meta name="description" content="Fliqlo 翻页钟的网页版 —— 与原版同一套皮肤，零依赖。">
+<title>FliqloX</title>
+<style>
+/* com.9031.fliqlo 2.1.5 (1) 20230921 compatible with com.9031.fliqloSS 1.8.6 (1) 20230925
+ * © 2023 9031
+ * https://fliqlo.com/
+ * https://9031.com/
+ */
+@charset 'utf-8';#loader,body,html{background-color:#000}#debug,#loader{position:fixed}#settings,a,body{color:#fff}#debug,#settings{margin:0 auto;left:50%}#loader,#main,body,html{width:100%;height:100%}#loader,.flip,.flip span,body{overflow:hidden}#settings,.flip span,body{text-align:center}@font-face{font-family:fliqlo;src:url('data:font/woff2;base64,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') format('woff2');font-weight:400;font-style:normal}body{position:relative;margin:0;padding:0;font-family:-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:100%;max-height:100%;-webkit-text-size-adjust:none;text-size-adjust:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}*{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none!important}a{text-decoration:none}#loader{display:block;top:0;bottom:0;z-index:210;transition:.25s ease-out}#loader.remove{opacity:0}#debug{z-index:10000;display:inline-block;height:20px;font-size:12px;line-height:20px;top:50%;transform:translate(-50%,-50%);padding:0 5px;background-color:#0f0;color:#000}#main,#settings{position:absolute}#settings{max-width:300px;width:auto;display:inline-bock;transform:translateX(-50%);z-index:101;opacity:0;padding:5px;border-radius:5px;top:20px;white-space:nowrap;font-size:11px;line-height:1;background-color:rgba(50,50,50,.6);transition:opacity .3s ease-out,visibility .3s ease-out;visibility:hidden}#settings>*{display:inline-block;vertical-align:middle}#main,.flip,.flip span,.flip.bottom.transform,.flip.clone.act,.flip.top.transform,.flips{display:block}#settings>*+*{margin-left:5px}body.hover #settings{opacity:1;visibility:visible}#main{z-index:0;transition:initial}#main.zoom{transition:transform .33s ease-in-out}#main.zoom.fb,.settings:not(.adjustscale)>#main{transition:transform .2s ease-in-out}#main-content,.dummy.portrait #main-content{position:absolute;display:block;top:50%;left:50%;width:1326px;height:676px;margin-left:-663px;margin-top:-338px;text-align:center;white-space:nowrap;font-family:fliqlo}#main-content.willchange,#main-content.willchange .flips{will-change:animation,transform}.dummy #main-content,.portrait:not(.dummy) #main-content{width:676px;height:1326px;margin-left:-338px;margin-top:-663px}.flip span,.flip::before,.flips{height:600px;position:absolute}#main-content-area,.dummy.portrait #main-content-area{position:absolute;z-index:0;top:0;right:0;bottom:0;left:0;margin:auto;width:1250px;height:600px;border-radius:50px}.dummy #main-content-area,.portrait:not(.dummy) #main-content-area{width:600px;height:1250px}.settings #main-content-area{transition:filter .2s linear}.flips{width:600px;border-radius:50px;transform-style:preserve-3d;box-shadow:0 0 16px 8px rgba(0,0,0,.75);transform:perspective(3900) translate3d(0,0,0);backface-visibility:hidden}.fade .flips{transition:box-shadow .5s ease-in-out}.dark .flips{box-shadow:0 0 16px 8px transparent}.flips#hurs{top:0;left:0;z-index:1}.dummy .flips#mins,.flips#mins{top:0;right:0;z-index:0}.dummy .flips#mins,.portrait:not(.dummy) .flips#mins{top:auto;bottom:0}.flip{position:absolute;width:600px;height:297px;box-sizing:content-box;color:rgba(255,255,255,.711);z-index:0;transform:rotateX(0);filter:brightness(100%);transition:unset;background-color:#0f0f0f}.dark .flip{background-color:transparent;transition:none!important}.willchange .flip{will-change:animation}.fade.dark .flip,:not(.fade) .flip{transition:border-color .5s ease-in-out,background-color .5s ease-in-out}.flip.hur{left:0}.flip.min{right:0}.flip.clone{z-index:1;display:none}.flip.top{border-bottom:1px solid #080808;bottom:303px;border-radius:50px 50px 0 0}.dark .flip.top{border-bottom-color:#000}.flip.bottom{border-top:1px solid #151515;top:303px;border-radius:0 0 50px 50px}.dark .flip.bottom{border-top-color:#000}.flip.top.clone{transform-origin:50% 300px}.flip.bottom.clone{transform-origin:50% -3px}.flip.fadein{animation:.15s ease-in forwards fadeIn}.flip.fadeout1{animation:.15s ease-in forwards fadeOut1}.flip.fadeout2{animation:.15s ease-out forwards fadeOut2}.flip.top.transform{animation:.15s ease-in forwards anmTopTransform,.15s ease-in forwards anmTopFilter}.flip.bottom.transform{animation:.15s ease-out forwards anmBottomTransform,.15s ease-out forwards anmBottomFilter}@keyframes fadeIn{0%{filter:brightness(0%)}66%{filter:brightness(33%)}100%{filter:brightness(100%)}}@keyframes fadeOut1{0%,66%{filter:brightness(100%)}100%{filter:brightness(50%)}}@keyframes fadeOut2{0%{filter:brightness(50%)}100%{filter:brightness(0%)}}@keyframes anmTopTransform{0%{transform:rotateX(0)}100%{transform:rotateX(-90deg)}}@keyframes anmTopFilter{0%{filter:brightness(100%)}100%{filter:brightness(20%)}}@keyframes anmBottomTransform{0%{transform:rotateX(90deg)}100%{transform:rotateX(1deg)}}@keyframes anmBottomFilter{0%{filter:contrast(92%) brightness(126%)}100%{filter:contrast(100%) brightness(100%)}}#main-content.disable-ort,#main-content.disable-ort .flips,.dummy #main-content,.dummy .flips,.innerportrait #main-content,.innerportrait .flips,.slideover #main-content,.slideover .flips,.stop .flip.bottom.transform,.stop .flip.top.transform{animation:none}.flip::before{content:'';left:0;width:600px;border-radius:50px;background-image:linear-gradient(to bottom,#161616,#0c0c0c);z-index:0}.flip::after{content:'';position:absolute;left:0;margin:1px;height:598px;width:598px;border-radius:49px;background-image:linear-gradient(to bottom,#111,#0b0b0b);box-shadow:0 0 200px 0 #0d0d0d inset;z-index:1}.fade .flip::after,.fade .flip::before{transition:opacity .5s ease-in-out}.dark .flip::after,.dark .flip::before{opacity:0;backface-visibility:hidden;transform:translate3d(0,0,0)}.flip span{left:0;width:600px;z-index:2;font-size:600px;line-height:758px;cursor:default}.flip.hur.one span{text-indent:-.025em}.flip.hur.eleven span,.flip.min.eleven span{text-indent:.08em}.flip.hur.eleven.justeleven span,.flip.min.eleven.justeleven span{text-indent:.04em}.flip.hur.tf0 span:before{content:'AM';display:inline-block;position:absolute;font-size:60px;line-height:1;text-align:left;text-indent:0;left:38px;top:78px;letter-spacing:0}.flip.hur.tf0.pm span:before{content:'PM';top:auto;bottom:62px}.flip.top span,.flip.top:after,.flip.top:before{top:0}.flip.bottom span,.flip.bottom:after,.flip.bottom:before{bottom:0}[class*=ort-] #main-content,[class*=ort-] .flips{animation-duration:.33s;animation-timing-function:ease-in-out}.ort-0-270 #main-content,.ort-0-90 #main-content,.ort-180-270 #main-content,.ort-180-90 #main-content,.ort-270-0 .flips,.ort-270-180 .flips,.ort-90-0 .flips,.ort-90-180 .flips{animation-name:rotateForward}.ort-0-270 .flips,.ort-0-90 .flips,.ort-180-270 .flips,.ort-180-90 .flips,.ort-270-0 #main-content,.ort-270-180 #main-content,.ort-90-0 #main-content,.ort-90-180 #main-content{animation-name:rotateBackward}@keyframes rotateForward{0%{transform:rotate(90deg)}100%{transform:rotate(0)}}@keyframes rotateBackward{0%{transform:rotate(-90deg)}100%{transform:rotate(0)}}#sonomatest{position:absolute;width:1px;height:1px;opacity:0;animation:.1s forwards sonomaTestFade}@keyframes sonomaTestFade{0%{opacity:0}100%{opacity:1}}
+
+</style>
+<style>
+/* ── 网页版附加样式（放在原版 CSS 之后，确保优先级）── */
+
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+
+/* 舞台居中：原版 CSS 靠 #main 的绝对定位，这里用 flex 兜住各种窗口尺寸 */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 首次进入的提示，几秒后自己淡掉 */
+#fliqloX-hint{
+  position:fixed;
+  left:50%; bottom:28px;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.34);
+  font:400 13px/1.5 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  letter-spacing:.04em;
+  text-align:center;
+  pointer-events:none;
+  opacity:1;
+  transition:opacity .8s ease-out;
+  z-index:300;
+}
+#fliqloX-hint.gone{opacity:0}
+#fliqloX-hint kbd{
+  font:inherit;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:4px;
+  padding:1px 5px;
+  margin:0 2px;
+}
+
+/* 秒 / 日期（扩展功能，默认关闭） */
+#fliqloX-seconds{
+  position:fixed;
+  right:0; bottom:0;
+  padding:14px 20px;
+  color:rgba(255,255,255,.30);
+  font:400 15px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  letter-spacing:.08em;
+  pointer-events:none;
+  z-index:200;
+}
+#fliqloX-date{
+  position:fixed;
+  left:0; bottom:0;
+  padding:14px 20px;
+  color:rgba(255,255,255,.30);
+  font:400 15px/1 -apple-system,"Segoe UI","PingFang SC",sans-serif;
+  letter-spacing:.06em;
+  pointer-events:none;
+  z-index:200;
+}
+
+@media (max-width:640px){
+  #fliqloX-hint{bottom:18px;font-size:11px}
+  #fliqloX-seconds,#fliqloX-date{font-size:12px;padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"></div>
+
+<div id="main">
+  <div id="main-content">
+    <div id="main-content-area">
+      <div id="hurs" class="flips">
+        <div class="flip hur top"></div>
+        <div class="flip hur bottom"></div>
+      </div>
+      <div id="mins" class="flips">
+        <div class="flip min top"></div>
+        <div class="flip min bottom"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="fliqloX-hint">双击进入全屏 · <kbd>F</kbd> 切换 · <kbd>Esc</kbd> 退出</div>
+
+<script>
+/* ============================================================================
+ * fliqloX.js —— Fliqlo 翻页钟的保真复刻 + 扩展（网页版 / 零依赖）
+ *
+ * 复用原版资产：fliqlo.css（全部视觉）、fliqlo.woff2（10 个数字字形）
+ * 逻辑按解包后的原版逐条对齐：
+ *   · 翻转方向判定 isHurOne / isHurEleven / isMinEleven …（原样照抄）
+ *   · 8 个克隆层的构建与命名规则
+ *   · _updateTime 的 250ms 轮询与 hlock/mlock 锁
+ *   · _updateFlips 的动画编排（top-clone 先转、org 层 fadein、bottom-org fadeout1）
+ *
+ * 与桌面版唯一的区别：不再依赖 jQuery —— 原版那个 jQuery 是作者自己裁剪的
+ * 构建，一个时钟页面背上它不划算。这里用原生 DOM，行为逐条对齐。
+ *
+ * 所有扩展功能默认关闭 —— 开箱行为与原版一致。
+ * ========================================================================== */
+
+(function () {
+    'use strict';
+
+    /* ------------------------------------------------------------------ *
+     * 0. 平台探测（照原版）
+     * ------------------------------------------------------------------ */
+    var ua            = navigator.userAgent;
+    var isScreensaver = ua.indexOf('Fliqlo') >= 0 && ua.indexOf('Screensaver') >= 0;
+    var isMobileApp   = isScreensaver && ua.indexOf('MobileApp') >= 0;
+    var isMac         = isScreensaver && ua.indexOf('Mac') >= 0;
+
+    /* ------------------------------------------------------------------ *
+     * 1. 配置
+     *    原版存 localStorage；网页版额外支持 URL 参数与宿主下发
+     * ------------------------------------------------------------------ */
+    var DEFAULTS = {
+        tf: 0,           // 时间格式：0 = 12 小时制，1 = 24 小时制
+        sc: 100,         // 缩放 50–100
+        br: 100,         // 亮度 25–100
+        bg: true,        // 显示深色底
+        bc: true,        // 显示描边
+
+        // ── 扩展项，默认关闭，保证与原版一致 ──
+        showSeconds: false,
+        showDate:    false,
+        showWeekday: false,
+        locale:      'zh-Hans'
+    };
+
+    var SC_MIN = 50, SC_MAX = 100;
+    var BR_MIN = 25, BR_MAX = 100;
+
+    var cfg = {};
+    for (var k in DEFAULTS) if (DEFAULTS.hasOwnProperty(k)) cfg[k] = DEFAULTS[k];
+
+    function saveConfig() {
+        try { localStorage.setItem('fliqloXConfig', JSON.stringify(cfg)); } catch (e) {}
+        postToHost({ event: 'saveConfig', config: cfg });
+    }
+
+    function loadConfig() {
+        // ① 宿主下发（桌面版）
+        if (window.__fliqloXBootConfig) mergeConfig(window.__fliqloXBootConfig);
+
+        // ② URL 参数：?tf=1&sc=80&sec=1 —— 方便分享特定设置的链接
+        try {
+            var qs = new URLSearchParams(location.search);
+            if (qs.has('tf'))  cfg.tf = parseInt(qs.get('tf'), 10) === 1 ? 1 : 0;
+            if (qs.has('sc'))  cfg.sc = clamp(parseInt(qs.get('sc'), 10), SC_MIN, SC_MAX);
+            if (qs.has('br'))  cfg.br = clamp(parseInt(qs.get('br'), 10), BR_MIN, BR_MAX);
+            if (qs.has('bg'))  cfg.bg = qs.get('bg') !== '0';
+            if (qs.has('bc'))  cfg.bc = qs.get('bc') !== '0';
+            if (qs.has('sec')) cfg.showSeconds = qs.get('sec') === '1';
+            if (qs.has('date')) cfg.showDate = qs.get('date') === '1';
+            if (qs.has('week')) cfg.showWeekday = qs.get('week') === '1';
+        } catch (e) {}
+
+        // ③ 本地保存的偏好
+        try {
+            var raw = localStorage.getItem('fliqloXConfig');
+            if (raw) mergeConfig(JSON.parse(raw));
+        } catch (e) {}
+    }
+
+    function mergeConfig(src) {
+        if (!src || typeof src !== 'object') return;
+        for (var key in DEFAULTS) {
+            if (DEFAULTS.hasOwnProperty(key) && src.hasOwnProperty(key) && src[key] !== undefined) {
+                cfg[key] = src[key];
+            }
+        }
+        cfg.sc = clamp(cfg.sc, SC_MIN, SC_MAX);
+        cfg.br = clamp(cfg.br, BR_MIN, BR_MAX);
+    }
+
+    function clamp(v, lo, hi) {
+        v = parseInt(v, 10);
+        if (isNaN(v)) return hi;
+        return v < lo ? lo : (v > hi ? hi : v);
+    }
+
+    function postToHost(payload) {
+        var handlers = window.webkit && window.webkit.messageHandlers;
+        if (handlers && handlers.fliqloX) {
+            try { handlers.fliqloX.postMessage(payload); } catch (e) {}
+        }
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 2. 运行时状态（沿用原版命名，便于对照）
+     * ------------------------------------------------------------------ */
+    var tf = cfg.tf, sc = cfg.sc, br = cfg.br, bg = cfg.bg, bc = cfg.bc;
+
+    var dsptf, dsphur, dspmin;      // 上次显示的值，用于比对
+    var maintimer = null;
+    var resetTimer = null;
+    var isActive = false;
+    var body;
+
+    /* ------------------------------------------------------------------ *
+     * 3. 翻转方向判定 —— 原样照抄
+     *    这几条决定 1 / 11 该往哪边翻，是"看起来一模一样"的关键
+     * ------------------------------------------------------------------ */
+    function isHurOne(t, h)        { return Boolean((t === 0 && h === 1) || (t === 0 && h === 13) || (t === 2 && h === 1)); }
+    function isHurEleven(t, h)     { return Boolean(h === 11 || (t === 0 && h === 23) || (t === 1 && h === 1) || (t >= 1 && h !== 1 && h % 10 === 1)); }
+    function isHurJustEleven(t, h) { return Boolean(h === 11 || (t === 0 && h === 23)); }
+    function isMinEleven(m)        { return Boolean(m % 10 === 1); }
+    function isMinJustEleven(m)    { return Boolean(m === 11); }
+
+    /* ------------------------------------------------------------------ *
+     * 4. DOM：克隆层构建 —— 照原版的命名规则
+     *    产生 8 个元素：
+     *      hur-top-org / hur-top-clone / hur-bottom-org / hur-bottom-clone
+     *      min-top-org / min-top-clone / min-bottom-org / min-bottom-clone
+     * ------------------------------------------------------------------ */
+    var el = {};        // id → 元素，构建后缓存，省掉反复查询
+
+    function buildClones() {
+        var flips = document.querySelectorAll('.flip');
+
+        // 第一轮：每个 .flip 克隆一份当"动画层"
+        Array.prototype.forEach.call(flips, function (node) {
+            var clone = node.cloneNode(true);
+            clone.classList.add('clone');
+            node.parentNode.appendChild(clone);
+        });
+
+        // 第二轮：命名 + 塞一个装数字的 span
+        var all = document.querySelectorAll('.flip');
+        Array.prototype.forEach.call(all, function (node) {
+            var kind = node.classList.contains('hur')   ? 'hur'    : 'min';
+            var side = node.classList.contains('top')   ? 'top'    : 'bottom';
+            var role = node.classList.contains('clone') ? 'clone'  : 'org';
+
+            node.id = kind + '-' + side + '-' + role;
+            node.dataset.hm = kind;
+
+            if (!node.querySelector('span')) {
+                node.appendChild(document.createElement('span'));
+            }
+
+            el[node.id] = node;
+        });
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 5. 渲染：把值写进对应元素
+     * ------------------------------------------------------------------ */
+
+    /// 小时显示的文本（12h 制把 0/13+ 折回去，24h 制补零）
+    function hourText(t, h) {
+        if (t === 0) return (h === 0 || h >= 13) ? Math.abs(h - 12) : h;
+        return (h < 10) ? ('0' + h) : h;
+    }
+
+    /// 给某个"半边"元素刷小时相关的 class + 文本
+    function paintHour(node) {
+        if (!node) return;
+        node.classList.toggle('tf0',        dsptf === 0);
+        node.classList.toggle('pm',         dsptf === 0 && dsphur >= 12);
+        node.classList.toggle('one',        isHurOne(dsptf, dsphur));
+        node.classList.toggle('eleven',     isHurEleven(dsptf, dsphur));
+        node.classList.toggle('justeleven', isHurJustEleven(dsptf, dsphur));
+        setText(node, hourText(dsptf, dsphur));   // AM/PM 由 CSS :before 画
+    }
+
+    /// 给某个"半边"元素刷分钟相关的 class + 文本
+    function paintMin(node) {
+        if (!node) return;
+        node.classList.toggle('eleven',     isMinEleven(dspmin));
+        node.classList.toggle('justeleven', isMinJustEleven(dspmin));
+        setText(node, dspmin);
+    }
+
+    function setText(node, value) {
+        var span = node.querySelector('span');
+        if (span) span.textContent = value;
+    }
+
+    /// 批量：所有 .hur / .min
+    function allOf(kind) { return document.querySelectorAll('.flip.' + kind); }
+
+    function forEachNode(list, fn) { Array.prototype.forEach.call(list, fn); }
+
+    /* ------------------------------------------------------------------ *
+     * 6. _updateTime —— 250ms 轮询，照原版
+     * ------------------------------------------------------------------ */
+    function updateTime(force) {
+        var now = new Date();
+        var d   = now.getHours();
+        var e   = now.getMinutes();
+        var f   = now.getSeconds();
+
+        if (f === 59 && !body.classList.contains('willchange')) body.classList.add('willchange');
+
+        // 分钟补零后即成为显示值（原版如此，dspmin 存的是字符串）
+        e = (e < 10) ? ('0' + e) : e;
+
+        // ── 首次 / 强制：直接摆好，不放动画 ──
+        if (!isActive || force || dsphur === undefined || dspmin === undefined) {
+            if (d !== dsphur || e !== dspmin || tf !== dsptf) {
+                document.getElementById('main-content-area').classList.add('stop');
+                forEachNode(document.querySelectorAll('.flip'), function (n) {
+                    n.classList.remove('transform', 'fadein', 'fadeout1', 'fadeout2');
+                });
+
+                dsphur = d; dspmin = e; dsptf = tf;
+                forEachNode(allOf('hur'), paintHour);
+                forEachNode(allOf('min'), paintMin);
+
+                body.classList.remove('hlock', 'mlock');
+            }
+            return;
+        }
+
+        // ── 常态：变了才翻 ──
+        if (d !== dsphur || e !== dspmin || tf !== dsptf) {
+            var mChanged  = (e !== dspmin && !body.classList.contains('mlock'));
+            var hChanged  = (d !== dsphur && !body.classList.contains('hlock'));
+            var tfChanged = (tf !== dsptf && !body.classList.contains('hlock'));
+
+            if (mChanged) dspmin = e;
+            if (hChanged) dsphur = d;
+
+            if (mChanged || hChanged || tfChanged) {
+                updateFlips(Boolean(hChanged || tfChanged), mChanged);
+
+                if (isMobileApp) {
+                    var handlers = window.webkit && window.webkit.messageHandlers;
+                    if (handlers && handlers.impactHapticFeedback) {
+                        try { handlers.impactHapticFeedback.postMessage((mChanged && hChanged) ? 1 : 0); } catch (err) {}
+                    }
+                }
+            }
+        } else if (!body.classList.contains('hlock') && !body.classList.contains('mlock')
+                   && body.classList.contains('willchange') && f !== 59) {
+            body.classList.remove('willchange');
+        }
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 7. _updateFlips —— 翻页动画的编排，照原版
+     *    top-clone 先转下去 → org 层 fadein 补位 → bottom-org fadeout1
+     * ------------------------------------------------------------------ */
+    function updateFlips(h, m) {
+        document.getElementById('main-content-area').classList.remove('stop');
+
+        if (h) {
+            setTimeout(function () {
+                dsptf = tf;
+                el['hur-top-clone'].classList.add('act', 'transform');
+                el['hur-top-org'].classList.add('fadein');
+                paintHour(el['hur-top-org']);
+                paintHour(el['hur-bottom-clone']);
+                el['hur-bottom-org'].classList.add('fadeout1');
+            }, m ? 10 : 0);
+        }
+
+        if (m) {
+            setTimeout(function () {
+                el['min-top-clone'].classList.add('act', 'transform');
+                el['min-top-org'].classList.add('fadein');
+                paintMin(el['min-top-org']);
+                paintMin(el['min-bottom-clone']);
+                el['min-bottom-org'].classList.add('fadeout1');
+            }, 0);
+        }
+
+        // 动画跑完复位（原版靠 animationend，这里用定时器更稳）
+        if (resetTimer) clearTimeout(resetTimer);
+        resetTimer = setTimeout(resetCloneLayers, 340);
+    }
+
+    function resetCloneLayers() {
+        forEachNode(document.querySelectorAll('.flip'), function (n) {
+            n.classList.remove('act', 'transform', 'fadein', 'fadeout1', 'fadeout2');
+        });
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 8. 缩放 / 亮度
+     * ------------------------------------------------------------------ */
+
+    /// 网页版：在用户设定的比例之外，还要自适应窗口，保证整块钟完整可见
+    function viewportFit() {
+        var stage = document.getElementById('main-content');
+        if (!stage) return 1;
+
+        // CSS 里 #main-content 的原始尺寸
+        var baseW = 1326, baseH = 676;
+        var availW = window.innerWidth  || document.documentElement.clientWidth;
+        var availH = window.innerHeight || document.documentElement.clientHeight;
+
+        return Math.min(availW / baseW, availH / baseH);
+    }
+
+    function applyScale() {
+        var fit = viewportFit();
+        var user = clamp(sc, SC_MIN, SC_MAX) / 100;
+        var factor = fit * user;
+
+        var main = document.getElementById('main');
+        if (main) main.style.transform = 'scale(' + factor + ')';
+
+        // 记录给自检用
+        window.__fliqloXScale = factor;
+    }
+
+    function applyBrightness() {
+        var v = clamp(br, BR_MIN, BR_MAX);
+        body.style.filter = 'brightness(' + (v / 100) + ')';
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 9. 扩展功能（默认关闭）
+     * ------------------------------------------------------------------ */
+
+    function renderSeconds() {
+        var existing = document.getElementById('fliqloX-seconds');
+        if (!cfg.showSeconds) { if (existing) existing.parentNode.removeChild(existing); return; }
+        if (!existing) {
+            existing = document.createElement('div');
+            existing.id = 'fliqloX-seconds';
+            body.appendChild(existing);
+        }
+        var s = new Date().getSeconds();
+        existing.textContent = (s < 10 ? '0' : '') + s;
+    }
+
+    function renderDate() {
+        var existing = document.getElementById('fliqloX-date');
+        if (!cfg.showDate && !cfg.showWeekday) { if (existing) existing.parentNode.removeChild(existing); return; }
+        if (!existing) {
+            existing = document.createElement('div');
+            existing.id = 'fliqloX-date';
+            body.appendChild(existing);
+        }
+        var now = new Date(), parts = [];
+        if (cfg.showWeekday) parts.push(now.toLocaleDateString(cfg.locale, { weekday: 'long' }));
+        if (cfg.showDate)    parts.push(now.toLocaleDateString(cfg.locale, { month: 'long', day: 'numeric' }));
+        existing.textContent = parts.join(' · ');
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 10. 心跳
+     * ------------------------------------------------------------------ */
+    function startMainTimer() {
+        stopMainTimer();
+        maintimer = setInterval(function () {
+            updateTime(false);
+            if (cfg.showSeconds) renderSeconds();
+            if (cfg.showDate || cfg.showWeekday) renderDate();
+        }, 250);
+    }
+
+    function stopMainTimer() {
+        if (maintimer) { clearInterval(maintimer); maintimer = null; }
+    }
+
+    /* ------------------------------------------------------------------ *
+     * 11. 对外接口
+     * ------------------------------------------------------------------ */
+    window.__fliqloX = {
+        resume: function () {
+            isActive = true;
+            updateTime(true);
+            startMainTimer();
+        },
+        pause: function () {
+            isActive = false;
+            stopMainTimer();
+        },
+        applyConfig: function (incoming) {
+            mergeConfig(incoming);
+            tf = cfg.tf; sc = cfg.sc; br = cfg.br; bg = cfg.bg; bc = cfg.bc;
+
+            applyScale();
+            applyBrightness();
+            body.classList.toggle('dark', !bg);
+
+            updateTime(true);
+            renderSeconds();
+            renderDate();
+        },
+        setConfig: function (patch) {
+            mergeConfig(patch);
+            saveConfig();
+            window.__fliqloX.applyConfig(cfg);
+        },
+        getConfig: function () { return JSON.parse(JSON.stringify(cfg)); },
+        refreshLayout: function () { applyScale(); }
+    };
+
+    /* ------------------------------------------------------------------ *
+     * 12. 启动
+     * ------------------------------------------------------------------ */
+    function boot() {
+        body = document.body;
+        loadConfig();
+
+        tf = cfg.tf; sc = cfg.sc; br = cfg.br; bg = cfg.bg; bc = cfg.bc;
+
+        document.documentElement.classList.add(isScreensaver ? 'screensaver' : 'no-screensaver');
+        document.documentElement.classList.add(isMac ? 'mac' : 'no-mac');
+
+        buildClones();
+
+        body.classList.toggle('dark', !bg);
+        applyScale();
+        applyBrightness();
+
+        updateTime(true);
+
+        window.addEventListener('resize', function () { applyScale(); });
+        window.addEventListener('orientationchange', function () { applyScale(); });
+
+        setTimeout(function () {
+            var loader = document.getElementById('loader');
+            if (loader) loader.classList.add('remove');
+
+            isActive = true;
+            updateTime(true);
+            startMainTimer();
+
+            // 告诉宿主（桌面版）可以了
+            postToHost({ event: 'ready' });
+        }, 100);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+
+})();
+
+</script>
+<script>
+/* ── 网页版宿主：全屏切换 + 提示淡出 ──────────────────────────────────
+   与时钟逻辑无关，纯浏览器交互，所以留在页面里而不进 fliqloX.js。
+   桌面版（屏保 / 手机 App）由原生宿主接管，不加载这段。            */
+(function () {
+    var hint = document.getElementById('fliqloX-hint');
+    var isScreensaver = navigator.userAgent.indexOf('Fliqlo') >= 0
+                     && navigator.userAgent.indexOf('Screensaver') >= 0;
+
+    // 屏保环境下不需要这些网页交互
+    if (isScreensaver) { if (hint) hint.remove(); return; }
+
+    // 提示：6 秒后淡出，鼠标一动就提前淡出
+    var dismissed = false;
+    function dismissHint() {
+        if (dismissed || !hint) return;
+        dismissed = true;
+        hint.classList.add('gone');
+    }
+    setTimeout(dismissHint, 6000);
+    window.addEventListener('mousemove', dismissHint, { once: true });
+    window.addEventListener('touchstart', dismissHint, { once: true });
+
+    // 全屏
+    function toggleFullscreen() {
+        var root = document.documentElement;
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            (document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document);
+        } else {
+            (root.requestFullscreen || root.webkitRequestFullscreen || function () {}).call(root);
+        }
+    }
+
+    window.addEventListener('dblclick', toggleFullscreen);
+    window.addEventListener('keydown', function (e) {
+        if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    });
+
+    // 全屏状态变化后重算缩放（浏览器 UI 收起会改变可视高度）
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (name) {
+        document.addEventListener(name, function () {
+            setTimeout(function () {
+                if (window.__fliqloX) window.__fliqloX.refreshLayout();
+            }, 120);
+        });
+    });
+})();
+</script>
+<script>
+window.__fliqloXBootConfig = {"tf":0,"sc":100,"br":100,"bg":true,"bc":true,"showSeconds":false,"showDate":false,"showWeekday":false,"locale":"zh-Hans"};
+</script>
+</body>
+</html>
