@@ -79,6 +79,26 @@ body{
   #fliqloX-hint{bottom:18px;font-size:11px}
   #fliqloX-seconds,#fliqloX-date{font-size:12px;padding:10px 14px}
 }
+
+/* ── 卡片底色亮度（扩展功能）─────────────────────────────────────────
+   原版 fliqlo.css 保持逐字节不动，这里在本文件之后用同名规则覆盖它。
+   规则位置更靠后 → 同优先级下胜出；而原版的 .dark .flip（特定性更高）
+   依然能盖住这里，所以 bg=0「不显示深色底」的行为不受影响。
+
+   8 个色值全部由 JS 按系数算好后写进 CSS 变量；
+   系数 100 时算出来的就是原版原值，渲染逐像素不变。 */
+.flip{
+  background-color:var(--card-base,#0f0f0f);
+}
+.flip::before{
+  background-image:linear-gradient(to bottom,var(--card-top-a,#161616),var(--card-top-b,#0c0c0c));
+}
+.flip::after{
+  background-image:linear-gradient(to bottom,var(--card-bot-a,#111),var(--card-bot-b,#0b0b0b));
+  box-shadow:0 0 200px 0 var(--card-inner,#0d0d0d) inset;
+}
+.flip.top{ border-bottom-color:var(--card-seam-top,#080808); }
+.flip.bottom{ border-top-color:var(--card-seam-bot,#151515); }
 </style>
 </head>
 <body>
@@ -139,6 +159,7 @@ body{
         sc: 100,         // 缩放 50–100
         br: 100,         // 亮度 25–100
         bg: true,        // 深色底（对应 CSS 的 dark 类）
+        bgb: 100,        // 卡片底色亮度系数：0 = 纯黑，100 = 原版原值，400 = 明显灰卡片
         bc: true,        // 亮度开关：false = 忽略 br，亮度强制 100%
                          //   （曾误注为「描边」——原版设置面板里没有此项，
                          //     CSS 里也没有任何可开关的描边，是臆想出来的）
@@ -152,6 +173,7 @@ body{
 
     var SC_MIN = 50, SC_MAX = 100;
     var BR_MIN = 25, BR_MAX = 100;
+    var BGB_MIN = 0, BGB_MAX = 400;      // 卡片底色亮度系数（100 = 原版原值）
 
     var cfg = {};
     for (var k in DEFAULTS) if (DEFAULTS.hasOwnProperty(k)) cfg[k] = DEFAULTS[k];
@@ -172,6 +194,7 @@ body{
             if (qs.has('sc'))  cfg.sc = clamp(parseInt(qs.get('sc'), 10), SC_MIN, SC_MAX);
             if (qs.has('br'))  cfg.br = clamp(parseInt(qs.get('br'), 10), BR_MIN, BR_MAX);
             if (qs.has('bg'))  cfg.bg = qs.get('bg') !== '0';
+            if (qs.has('bgb')) cfg.bgb = clamp(parseInt(qs.get('bgb'), 10), BGB_MIN, BGB_MAX);
             if (qs.has('bc'))  cfg.bc = qs.get('bc') !== '0';
             if (qs.has('sec')) cfg.showSeconds = qs.get('sec') === '1';
             if (qs.has('date')) cfg.showDate = qs.get('date') === '1';
@@ -194,6 +217,7 @@ body{
         }
         cfg.sc = clamp(cfg.sc, SC_MIN, SC_MAX);
         cfg.br = clamp(cfg.br, BR_MIN, BR_MAX);
+        cfg.bgb = clamp(cfg.bgb, BGB_MIN, BGB_MAX);
 
         // tf 只认 0/1/2，别的值一律退回 12 小时制
         var t = parseInt(cfg.tf, 10);
@@ -513,6 +537,55 @@ body{
     }
 
     /* ------------------------------------------------------------------ *
+     * 8b. 卡片底色亮度（扩展功能）
+     *
+     * 卡片底色是三层叠出来的 8 个色值（.flip 主色 + 两个伪元素的渐变 +
+     * 两条中缝），不能简单给 .flip 套 filter —— 数字 span 也在 .flip 里，
+     * 一过滤连数字一起变暗。
+     *
+     * 所以：色值在这里按系数算好，写进 CSS 变量，
+     * 由 index.html 里那层覆盖样式消费。原版 CSS 不动。
+     * ------------------------------------------------------------------ */
+
+    // 基准色，全部取自原版 fliqlo.css
+    var CARD_BASE = {
+        base:    [0x0f, 0x0f, 0x0f],   // .flip background-color
+        topA:    [0x16, 0x16, 0x16],   // .flip::before 渐变起
+        topB:    [0x0c, 0x0c, 0x0c],   // .flip::before 渐变止
+        botA:    [0x11, 0x11, 0x11],   // .flip::after  渐变起
+        botB:    [0x0b, 0x0b, 0x0b],   // .flip::after  渐变止
+        inner:   [0x0d, 0x0d, 0x0d],   // .flip::after 内阴影
+        seamTop: [0x08, 0x08, 0x08],   // .flip.top    border-bottom
+        seamBot: [0x15, 0x15, 0x15]    // .flip.bottom border-top
+    };
+
+    function scaleColor(rgb, factor) {
+        var out = [];
+        for (var i = 0; i < 3; i++) {
+            var v = Math.round(rgb[i] * factor);
+            out.push(v < 0 ? 0 : (v > 255 ? 255 : v));
+        }
+        return 'rgb(' + out.join(',') + ')';
+    }
+
+    function applyBackgroundBrightness(v) {
+        var f = clamp(v, BGB_MIN, BGB_MAX) / 100;
+        var root = document.documentElement;
+
+        root.style.setProperty('--card-base',      scaleColor(CARD_BASE.base,    f));
+        root.style.setProperty('--card-top-a',     scaleColor(CARD_BASE.topA,    f));
+        root.style.setProperty('--card-top-b',     scaleColor(CARD_BASE.topB,    f));
+        root.style.setProperty('--card-bot-a',     scaleColor(CARD_BASE.botA,    f));
+        root.style.setProperty('--card-bot-b',     scaleColor(CARD_BASE.botB,    f));
+        root.style.setProperty('--card-inner',     scaleColor(CARD_BASE.inner,   f));
+        root.style.setProperty('--card-seam-top',  scaleColor(CARD_BASE.seamTop, f));
+        root.style.setProperty('--card-seam-bot',  scaleColor(CARD_BASE.seamBot, f));
+
+        // 记录给自检用
+        window.__fliqloXCardFactor = f;
+    }
+
+    /* ------------------------------------------------------------------ *
      * 9. 扩展功能（默认关闭）
      * ------------------------------------------------------------------ */
 
@@ -577,6 +650,7 @@ body{
 
             applyScale();
             applyBrightness();
+            applyBackgroundBrightness(cfg.bgb);
             body.classList.toggle('dark', !bg);
 
             updateTime(true);
@@ -610,6 +684,7 @@ body{
         body.classList.toggle('dark', !bg);
         applyScale();
         applyBrightness();
+        applyBackgroundBrightness(cfg.bgb);
 
         updateTime(true);
 
@@ -687,7 +762,7 @@ body{
 })();
 </script>
 <script>
-window.__fliqloXBootConfig = {"tf":0,"sc":100,"br":100,"bg":true,"bc":true,"showSeconds":false,"showDate":false,"showWeekday":false,"locale":"zh-Hans"};
+window.__fliqloXBootConfig = {"tf":0,"sc":100,"br":100,"bg":true,"bgb":100,"bc":true,"showSeconds":false,"showDate":false,"showWeekday":false,"locale":"zh-Hans"};
 </script>
 </body>
 </html>
