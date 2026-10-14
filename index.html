@@ -135,7 +135,7 @@ body{
      *    原版存 localStorage；网页版额外支持 URL 参数与宿主下发
      * ------------------------------------------------------------------ */
     var DEFAULTS = {
-        tf: 0,           // 时间格式：0 = 12 小时制，1 = 24 小时制
+        tf: 0,           // 时间格式：0 = 12 小时制，1 = 24 小时制（补零），2 = 24 小时制（不补零）
         sc: 100,         // 缩放 50–100
         br: 100,         // 亮度 25–100
         bg: true,        // 深色底（对应 CSS 的 dark 类）
@@ -168,7 +168,7 @@ body{
         // ② URL 参数：?tf=1&sc=80&sec=1 —— 方便分享特定设置的链接
         try {
             var qs = new URLSearchParams(location.search);
-            if (qs.has('tf'))  cfg.tf = parseInt(qs.get('tf'), 10) === 1 ? 1 : 0;
+            if (qs.has('tf')) { var tv = parseInt(qs.get('tf'), 10); cfg.tf = (tv === 1 || tv === 2) ? tv : 0; }
             if (qs.has('sc'))  cfg.sc = clamp(parseInt(qs.get('sc'), 10), SC_MIN, SC_MAX);
             if (qs.has('br'))  cfg.br = clamp(parseInt(qs.get('br'), 10), BR_MIN, BR_MAX);
             if (qs.has('bg'))  cfg.bg = qs.get('bg') !== '0';
@@ -194,6 +194,10 @@ body{
         }
         cfg.sc = clamp(cfg.sc, SC_MIN, SC_MAX);
         cfg.br = clamp(cfg.br, BR_MIN, BR_MAX);
+
+        // tf 只认 0/1/2，别的值一律退回 12 小时制
+        var t = parseInt(cfg.tf, 10);
+        cfg.tf = (t === 1 || t === 2) ? t : 0;
     }
 
     function clamp(v, lo, hi) {
@@ -269,10 +273,13 @@ body{
      * 5. 渲染：把值写进对应元素
      * ------------------------------------------------------------------ */
 
-    /// 小时显示的文本（12h 制把 0/13+ 折回去，24h 制补零）
+    /// 小时显示的文本
+    ///   tf=0  12 小时制（AM/PM 由 CSS :before 画）
+    ///   tf=1  24 小时制，补零（09）
+    ///   tf=2  24 小时制，不补零（9）—— 原版设置面板里的 "24h w/o 0"
     function hourText(t, h) {
         if (t === 0) return (h === 0 || h >= 13) ? Math.abs(h - 12) : h;
-        return (h < 10) ? ('0' + h) : h;
+        return (t === 1 && h < 10) ? ('0' + h) : h;
     }
 
     /// 给某个"半边"元素刷小时相关的 class + 文本
