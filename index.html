@@ -138,8 +138,10 @@ body{
         tf: 0,           // 时间格式：0 = 12 小时制，1 = 24 小时制
         sc: 100,         // 缩放 50–100
         br: 100,         // 亮度 25–100
-        bg: true,        // 显示深色底
-        bc: true,        // 显示描边
+        bg: true,        // 深色底（对应 CSS 的 dark 类）
+        bc: true,        // 亮度开关：false = 忽略 br，亮度强制 100%
+                         //   （曾误注为「描边」——原版设置面板里没有此项，
+                         //     CSS 里也没有任何可开关的描边，是臆想出来的）
 
         // ── 扩展项，默认关闭，保证与原版一致 ──
         showSeconds: false,
@@ -497,7 +499,9 @@ body{
     }
 
     function applyBrightness() {
-        var v = clamp(br, BR_MIN, BR_MAX);
+        // 原版语义：bc 是亮度开关。bc=false 时亮度强制拉满，忽略 br 的设置。
+        //（对照原版 `'filter':'brightness('+((bc)?br:brMax)+'%)'`）
+        var v = bc ? clamp(br, BR_MIN, BR_MAX) : 100;
         body.style.filter = 'brightness(' + (v / 100) + ')';
     }
 
