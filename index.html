@@ -214,7 +214,6 @@ body{
 
     var dsptf, dsphur, dspmin;      // 上次显示的值，用于比对
     var maintimer = null;
-    var resetTimer = null;
     var isActive = false;
     var body;
 
@@ -360,8 +359,13 @@ body{
     }
 
     /* ------------------------------------------------------------------ *
-     * 7. _updateFlips —— 翻页动画的编排，照原版
-     *    top-clone 先转下去 → org 层 fadein 补位 → bottom-org fadeout1
+     * 7. _updateFlips —— 翻页动画的编排
+     *
+     * 完整照抄原版的四段式状态机。这里曾经吃过亏：
+     * 一开始我图省事，用「加 class → 340ms 后统一清掉」代替，
+     * 结果 ①下半边翻得太早（原版是上边转完才启动下边）②org 层的文字没刷新，
+     * 旧数字从新数字的缝隙里透出来，就是肉眼看到的「残影」。
+     * 原版靠 animationend 逐段推进，一步都不能省。
      * ------------------------------------------------------------------ */
     function updateFlips(h, m) {
         document.getElementById('main-content-area').classList.remove('stop');
@@ -370,8 +374,8 @@ body{
             setTimeout(function () {
                 dsptf = tf;
                 el['hur-top-clone'].classList.add('act', 'transform');
-                el['hur-top-org'].classList.add('fadein');
                 paintHour(el['hur-top-org']);
+                el['hur-top-org'].classList.add('fadein');
                 paintHour(el['hur-bottom-clone']);
                 el['hur-bottom-org'].classList.add('fadeout1');
             }, m ? 10 : 0);
@@ -380,21 +384,86 @@ body{
         if (m) {
             setTimeout(function () {
                 el['min-top-clone'].classList.add('act', 'transform');
-                el['min-top-org'].classList.add('fadein');
                 paintMin(el['min-top-org']);
+                el['min-top-org'].classList.add('fadein');
                 paintMin(el['min-bottom-clone']);
                 el['min-bottom-org'].classList.add('fadeout1');
             }, 0);
         }
-
-        // 动画跑完复位（原版靠 animationend，这里用定时器更稳）
-        if (resetTimer) clearTimeout(resetTimer);
-        resetTimer = setTimeout(resetCloneLayers, 340);
     }
 
-    function resetCloneLayers() {
-        forEachNode(document.querySelectorAll('.flip'), function (n) {
-            n.classList.remove('act', 'transform', 'fadein', 'fadeout1', 'fadeout2');
+    /* ------------------------------------------------------------------ *
+     * 7b. animationend 状态机 —— 原版逐条对应
+     * ------------------------------------------------------------------ */
+    function bindAnimationHandlers() {
+
+        // ── 上半边 clone：翻转期间上锁，转完后解锁并把下半边放下去 ──
+        ['hur-top-clone', 'min-top-clone'].forEach(function (id) {
+            var node = el[id];
+            if (!node) return;
+
+            node.addEventListener('animationstart', function () {
+                body.classList.add(node.dataset.hm === 'hur' ? 'hlock' : 'mlock');
+            });
+
+            node.addEventListener('animationend', function (e) {
+                e.stopPropagation();
+                var kind = node.dataset.hm;
+
+                node.classList.remove('act', 'transform');
+                if (kind === 'hur') paintHour(node); else paintMin(node);
+
+                // ★ 下半边此刻才开始转（原版的机械感就在这一句上）
+                var bottomClone = el[kind + '-bottom-clone'];
+                if (bottomClone) bottomClone.classList.add('act', 'transform');
+            });
+        });
+
+        // ── 上半边 org：淡入结束就摘掉 class ──
+        ['hur-top-org', 'min-top-org'].forEach(function (id) {
+            var node = el[id];
+            if (!node) return;
+            node.addEventListener('animationend', function (e) {
+                e.stopPropagation();
+                node.classList.remove('fadein');
+            });
+        });
+
+        // ── 下半边 clone：转完后，把对应的 org 层也刷成新值 ──
+        //    ★ 这一步不能省：.flip 没有背景色，数字直接画在卡片上，
+        //      org 层如果还留着旧数字，就会从新数字的缝隙里透出来。
+        ['hur-bottom-clone', 'min-bottom-clone'].forEach(function (id) {
+            var node = el[id];
+            if (!node) return;
+
+            node.addEventListener('animationend', function (e) {
+                e.stopPropagation();
+                var kind = node.dataset.hm;
+
+                node.classList.remove('act', 'transform');
+
+                var org = el[kind + '-bottom-org'];
+                if (org) {
+                    if (kind === 'hur') paintHour(org); else paintMin(org);
+                }
+
+                body.classList.remove(kind === 'hur' ? 'hlock' : 'mlock');
+            });
+        });
+
+        // ── 下半边 org：两级淡出（fadeout1 → fadeout2 → 清掉）──
+        ['hur-bottom-org', 'min-bottom-org'].forEach(function (id) {
+            var node = el[id];
+            if (!node) return;
+            node.addEventListener('animationend', function (e) {
+                e.stopPropagation();
+                if (node.classList.contains('fadeout1')) {
+                    node.classList.remove('fadeout1');
+                    node.classList.add('fadeout2');
+                } else {
+                    node.classList.remove('fadeout2');
+                }
+            });
         });
     }
 
@@ -525,6 +594,7 @@ body{
         document.documentElement.classList.add(isMac ? 'mac' : 'no-mac');
 
         buildClones();
+        bindAnimationHandlers();
 
         body.classList.toggle('dark', !bg);
         applyScale();
