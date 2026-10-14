@@ -51,5 +51,5 @@ tf=2   09:41 → 9:41
 
 网页层代码（HTML / JavaScript）为本项目所有。
 
-数字字体与样式表源自 Fliqlo（© 9031, https://fliqlo.com/），
+数字字体与样式表源自 Fliqlo（© 9031, <https://fliqlo.com/>），
 此处仅作个人演示用途，请勿再次分发。
