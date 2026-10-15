@@ -79,6 +79,12 @@ body{
   #fliqloX-hint{bottom:18px;font-size:11px}
   #fliqloX-seconds,#fliqloX-date{font-size:12px;padding:10px 14px}
 }
+  
+/* ── 全屏时隐藏鼠标指针 ────────────────────────────────────────────
+   ⚠️ 必须连子元素一起设：原版 fliqlo.css 里有 .flip span{cursor:default}，
+      只在 body 上设 cursor:none 会盖不住数字和卡片区域，指针照样显示。 */
+body.cursor-hidden,
+body.cursor-hidden *{ cursor:none !important; }
 
 /* ── 卡片底色亮度（扩展功能）─────────────────────────────────────────
    原版 fliqlo.css 保持逐字节不动，这里在本文件之后用同名规则覆盖它。
@@ -749,6 +755,56 @@ body{
     window.addEventListener('dblclick', toggleFullscreen);
     window.addEventListener('keydown', function (e) {
         if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    });
+
+    // ── 全屏时隐藏鼠标指针 ────────────────────────────────────────────
+    // 时钟是拿来看的，指针横在画面正中碍事。做法跟视频播放器一样：
+    // 静止就藏起来，鼠标一动先显出来、停手 1.5 秒再藏回去——
+    // 这样指针丢了也能找回来，不会出现「完全摸不着鼠标」的情况。
+    var CURSOR_IDLE_MS = 1500;
+    var cursorTimer = null;
+
+    function inFullscreen() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+    function showCursor() {
+        document.body.classList.remove('cursor-hidden');
+    }
+    function hideCursor() {
+        document.body.classList.add('cursor-hidden');
+    }
+    function armHideCursor() {
+        clearTimeout(cursorTimer);
+        cursorTimer = setTimeout(function () {
+            if (inFullscreen()) hideCursor();
+        }, CURSOR_IDLE_MS);
+    }
+
+    window.addEventListener('mousemove', function () {
+        if (!inFullscreen()) { showCursor(); return; }
+        showCursor();
+        armHideCursor();
+    }, { passive: true });
+
+    // 进出全屏时立刻处理，不用等下一次鼠标移动
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (name) {
+        document.addEventListener(name, function () {
+            clearTimeout(cursorTimer);
+            if (inFullscreen()) {
+                hideCursor();
+                armHideCursor();
+            } else {
+                showCursor();
+            }
+        });
+    });
+
+    // 用手势退出全屏（Esc）时也得把指针放出来
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !inFullscreen()) {
+            clearTimeout(cursorTimer);
+            showCursor();
+        }
     });
 
     // 全屏状态变化后重算缩放（浏览器 UI 收起会改变可视高度）
